@@ -11,7 +11,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 声明C++项目
-project(MiraiCPPlugin LANGUAGES CXX)
+project(CAObotPlugin LANGUAGES CXX)
 
 # 寻找库的头文件
 set(SOURCE_HEADER_PATH
@@ -26,19 +26,19 @@ file(GLOB PLUGIN_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
 # 添加动态库编译目标
 add_library(
-        MiraiCPPlugin
+        CAObotPlugin
         SHARED
         single_include/MiraiCP/MiraiCP.cpp # MiraiCP 源文件
         ${PLUGIN_SOURCE_PATH}
 )
 
 # 引入全部头文件路径
-target_include_directories(MiraiCPPlugin PUBLIC ${SOURCE_HEADER_PATH})
+target_include_directories(CAObotPlugin PUBLIC ${SOURCE_HEADER_PATH})
 
 # 插件移植性
 if (WIN32)
-    target_link_libraries(MiraiCPPlugin -static)
+    target_link_libraries(CAObotPlugin -static)
 endif (WIN32)
 if (UNIX)
-    target_link_libraries(MiraiCPPlugin -static-libstdc++ -static-libgcc)
+    target_link_libraries(CAObotPlugin -static-libstdc++ -static-libgcc)
 endif (UNIX)
