@@ -1,4 +1,4 @@
-name: C++ CI in ubuntu & win
+name: C++ CI in ubuntu
 
 on: 
   push:
@@ -21,24 +21,3 @@ jobs:
       run: mkdir ./build && cd ./build && cmake ..
     - name: build with gcc
       run: cd ./build && make CAObotPlugin
-  windows-msvc-single:
-    runs-on: windows-latest
-    steps:
-    - name: checkout  
-      uses: actions/checkout@v2
-    - name: configure
-      run: mkdir ./build && cd ./build && cmake ..
-    - name: build with msvc
-      run:  cmake --build build --config Debug --target CAObotPlugin
-  windows-mingw:
-    runs-on: windows-latest
-    steps:
-    - name: checkout  
-      uses: actions/checkout@v2
-    - name: configure
-      env: 
-        cc: gcc
-        cxx: g++
-      run: mkdir ./build && cd ./build && cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" ..
-    - name: build with gcc
-      run: cmake --build build --config Debug --target CAObotPlugin
