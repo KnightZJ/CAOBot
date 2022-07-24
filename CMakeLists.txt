@@ -20,7 +20,7 @@ set(SOURCE_HEADER_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/single_include/3rd_include/utf8/utf8
     ${CMAKE_CURRENT_SOURCE_DIR}/single_include/MiraiCP
 )
-
+find_package (SQLite3)
 # 添加src目录下所有源文件（每次新增文件不要修改cmake，只需重新执行cmake命令）
 file(GLOB PLUGIN_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 
@@ -33,12 +33,12 @@ add_library(
 )
 
 # 引入全部头文件路径
-target_include_directories(CAObotPlugin PUBLIC ${SOURCE_HEADER_PATH})
+target_include_directories(CAObotPlugin PUBLIC ${SOURCE_HEADER_PATH} ${SQLite3_INCLUDE_DIRS})
 
 # 插件移植性
 if (WIN32)
     target_link_libraries(CAObotPlugin -static)
 endif (WIN32)
 if (UNIX)
-    target_link_libraries(CAObotPlugin -static-libstdc++ -static-libgcc)
+    target_link_libraries(CAObotPlugin -static-libstdc++ -static-libgcc ${SQLite3_LIBRARIES})
 endif (UNIX)
