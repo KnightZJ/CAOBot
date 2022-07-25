@@ -10,11 +10,27 @@ string timeToString(time_t time, string format) {
 }
 
 ParsedMessage::ParsedMessage(GroupMessageEvent &e)
-  : sender(e.sender), group(e.group) {
+  : sender(e.sender), group(e.group),
+    audioMsg(e.message.first<OnlineAudio>()),
+    fileMsg(e.message.first<RemoteFile>()),
+    forwardMsg(e.message.first<OnlineForwardedMessage>()),
+    timestamp(time(0)) {
+  if (audioMsg != nullopt) {
+    miraiCode = "[语音消息]";
+    return;
+  }
+  if (fileMsg != nullopt) {
+    miraiCode = "[文件消息]";
+    return;
+  }
+  if (forwardMsg != nullopt) {
+    miraiCode = "[转发消息]";
+    return;
+  }
+  miraiCode = e.message.toMiraiCode();
   for (auto at: e.message.filter<At>())
     mentionedMembers.push_back(e.group.getMember(at.target));
-  for (auto audio: e.message.filter<OnlineAudio>())
-    audios.push_back(audio);
+  atAll = e.message.first<AtAll>() != nullopt;
   images = e.message.filter<Image>();
   for (auto text: e.message.filter<PlainText>()) {
     string s = text.content;

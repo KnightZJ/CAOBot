@@ -10,12 +10,17 @@ using namespace MiraiCP;
 
 struct ParsedMessage {
   ParsedMessage(GroupMessageEvent &e);
+  string miraiCode;
   vector<Member> mentionedMembers;
   vector<Image> images;
-  vector<OnlineAudio> audios;
   vector<string> cmds;
+  bool atAll;
+  optional<OnlineAudio> audioMsg;
+  optional<RemoteFile> fileMsg;
+  optional<OnlineForwardedMessage> forwardMsg;
   Member sender;
   Group group;
+  time_t timestamp;
 };
 
 string timeToString(time_t time);
