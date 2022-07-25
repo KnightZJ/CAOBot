@@ -13,6 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 声明C++项目
 project(CAObotPlugin LANGUAGES CXX)
 
+add_subdirectory(SQLiteCpp)
+
 # 寻找库的头文件
 set(SOURCE_HEADER_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/single_include/3rd_include
@@ -40,5 +42,5 @@ if (WIN32)
     target_link_libraries(CAObotPlugin -static)
 endif (WIN32)
 if (UNIX)
-    target_link_libraries(CAObotPlugin -static-libstdc++ -static-libgcc ${SQLite3_LIBRARIES})
+    target_link_libraries(CAObotPlugin -static-libstdc++ -static-libgcc SQLiteCpp ${SQLite3_LIBRARIES})
 endif (UNIX)
