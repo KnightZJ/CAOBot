@@ -1,6 +1,6 @@
 #include "module.h"
 
-const string map[] = {
+const string monthTable[] = {
   "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
@@ -8,7 +8,7 @@ Module::Module(string _prefix, string _version, string date, string time, string
   updateTime = date.substr(7, 4) + "/";
   string sub = date.substr(0, 3);
   for (int i = 0; i < 12; ++i)
-    if (map[i] == sub) {
+    if (monthTable[i] == sub) {
       updateTime += to_string(i+1) + "/";
     }
   updateTime += date.substr(4, 2) + " " + time.substr(0, 5);
@@ -22,3 +22,4 @@ string Module::help() {
         +"构建时间：" + updateTime + "\n"
         +"模块功能：" + desc;
 }
+
