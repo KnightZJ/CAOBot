@@ -1,44 +1,53 @@
 #include "sql.h"
-#include <cstdio>
-
-Sql* sql = nullptr;
 
 Sql::Sql()
  : db("caobot.db", OPEN_READWRITE | OPEN_CREATE) {
-  init();
+  if (!db.tableExists("GroupMsg"))
+    db.exec("CREATE TABLE GroupMsg("\
+            "msgId       INTEGER   PRIMARY KEY,"\
+            "groupId     INT8      NOT NULL,"\
+            "senderId    INT8      NOT NULL,"\
+            "miraiCode   TEXT      NOT NULL,"\
+            "timestamp   INTEGER   NOT NULL,"\
+            "fileId      INTEGER   DEFAULT 0,"\
+            "audioId     INTEGER   DEFAULT 0)");
+  if (!db.tableExists("FriendMsg"))
+    db.exec("CREATE TABLE FriendMsg("\
+            "msgId       INTEGER   PRIMARY KEY,"\
+            "friendId    INT8      NOT NULL,"\
+            "miraiCode  TEXT      NOT NULL,"\
+            "timestamp   INTEGER   NOT NULL)");
+  if (!db.tableExists("FileMsg"))
+    db.exec("CREATE TABLE FileMsg("\
+            "fileId      INTEGER   PRIMARY KEY,"\
+            "fileName    TEXT      NOT NULL,"\
+            "fileSize    INT8      NOT NULL,"\
+            "fileUrl     TEXT      NOT NULL)");
+  if (!db.tableExists("AudioMsg"))
+    db.exec("CREATE TABLE AudioMsg("\
+            "audioId     INTEGER   PRIMARY KEY,"\
+            "audioName   TEXT      NOT NULL,"\
+            "audioSize   INTEGER   NOT NULL,"\
+            "audioLength INTEGER   NOT NULL,"\
+            "audioUrl    TEXT      NOT NULL)");
 }
 
-Sql* Sql::instance() {
-  if (sql == nullptr)
-    sql = new Sql();
+Sql& Sql::instance() {
+  static Sql sql;
   return sql;
 }
 
-bool Sql::init() {
-  if (!db.tableExists("GroupMsg"))
-    db.exec("CREATE TABLE GroupMsg("\
-            "groupId     INT8             NOT NULL,"\
-            "senderId    INT8             NOT NULL,"\
-            "msgContent  TEXT             NOT NULL,"\
-            "timestamp   INTEGER          NOT NULL)");
-  if (!db.tableExists("FriendMsg"))
-    db.exec("CREATE TABLE FriendMsg("\
-                  "msgId       INT8 PRIMARY KEY NOT NULL,"\
-                  "friendId    INT8             NOT NULL,"\
-                  "msgContent  TEXT             NOT NULL,"\
-                  "timestamp   INTEGER          NOT NULL)");
-  return true;
-}
-
-bool Sql::saveGroupMsg(int64_t groupId, int64_t senderId, string miraiCode, time_t timestamp) {
+bool Sql::saveGroupMsg(int64_t groupId, int64_t senderId, string miraiCode, time_t timestamp, int fileId, int audioId) {
   Statement query(db, 
       "INSERT INTO GroupMsg "\
-      "(groupId, senderId, msgContent, timestamp) "\
-      "VALUES (?, ?, ?, ?)");
+      "(msgId, groupId, senderId, miraiCode, timestamp, fileId, audioId) "\
+      "VALUES (NULL, ?, ?, ?, ?, ?, ?)");
   query.bind(1, groupId);
   query.bind(2, senderId);
   query.bind(3, miraiCode);
   query.bind(4, timestamp);
+  query.bind(5, fileId);
+  query.bind(6, audioId);
   query.exec();
   return true;
 }
@@ -46,7 +55,7 @@ bool Sql::saveGroupMsg(int64_t groupId, int64_t senderId, string miraiCode, time
 vector<string> Sql::getGroupMsg(int64_t groupId, int64_t senderId, int count) {
   vector<string> res;
   Statement query(db, 
-      "SELECT msgContent FROM GroupMsg "\
+      "SELECT miraiCode FROM GroupMsg "\
       "WHERE groupId = ? AND senderId = ? "\
       "ORDER BY timestamp DESC "\
       "LIMIT ?");
@@ -58,7 +67,27 @@ vector<string> Sql::getGroupMsg(int64_t groupId, int64_t senderId, int count) {
   return res;
 }
 
-void Sql::quit() {
-  delete sql;
-  sql = nullptr;
+int Sql::saveFileMsg(string name, int64_t size, string url) {
+  Statement query(db, 
+      "INSERT INTO FileMsg "\
+      "(fileId, fileName, fileSize, fileUrl) "\
+      "VALUES (NULL, ?, ?, ?)");
+  query.bind(1, name);
+  query.bind(2, size);
+  query.bind(3, url);
+  query.exec();
+  return db.execAndGet("SELECT max(fileId) FROM FileMsg").getInt();
+}
+
+int Sql::saveAudioMsg(string name, int size, int length, string url) {
+  Statement query(db, 
+      "INSERT INTO AudioMsg "\
+      "(audioId, audioName, audioSize, audioLength, audioUrl) "\
+      "VALUES (NULL, ?, ?, ?, ?)");
+  query.bind(1, name);
+  query.bind(2, size);
+  query.bind(3, length);
+  query.bind(4, url);
+  query.exec();
+  return db.execAndGet("SELECT max(audioId) FROM AudioMsg").getInt();
 }
