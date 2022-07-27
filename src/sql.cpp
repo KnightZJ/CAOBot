@@ -30,6 +30,10 @@ Sql::Sql()
             "audioSize   INTEGER   NOT NULL,"\
             "audioLength INTEGER   NOT NULL,"\
             "audioUrl    TEXT      NOT NULL)");
+  if (!db.tableExists("GroupConfig"))
+    db.exec("CREATE TABLE GroupConfig("\
+            "groupId     INT8   PRIMARY KEY,"\
+            "config      INT8   DEFAULT 0)");
 }
 
 Sql& Sql::instance() {
@@ -90,4 +94,27 @@ int Sql::saveAudioMsg(string name, int size, int length, string url) {
   query.bind(4, url);
   query.exec();
   return db.execAndGet("SELECT max(audioId) FROM AudioMsg").getInt();
+}
+
+bool Sql::updateGroupConfig(int64_t groupId, int64_t config) {
+  Statement q1(db, 
+      "INSERT OR IGNORE INTO GroupConfig VALUES(?, ?)");
+  q1.bind(1, groupId);
+  q1.bind(2, config);
+  q1.exec();
+  Statement q2(db,
+      "UPDATE GroupConfig SET config = ? WHERE groupId = ?");
+  q2.bind(1, config);
+  q2.bind(2, groupId);
+  q2.exec();
+  return true;
+}
+
+int64_t Sql::getGroupConfig(int64_t groupId) {
+  Statement query(db,
+      "SELECT config FROM GroupConfig WHERE groupId = ?");
+  query.bind(1, groupId);
+  if (query.executeStep())
+    return query.getColumn(0);
+  return 0;
 }
