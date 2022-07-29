@@ -11,9 +11,11 @@ using namespace SQLite;
 class Sql {
 public:
   static Sql& instance();
-  bool saveGroupMsg(int64_t groupId, int64_t senderId, string miraiCode, time_t timestamp, int fileId, int audioId);
-  int saveFileMsg(string name, int64_t size, string url);
-  int saveAudioMsg(string name, int size, int length, string url);
+  int saveGroupMsg(int64_t groupId, int64_t senderId, string source, time_t timestamp, int type);
+  bool saveFileMsg(int msgId, string name, int64_t size, string url);
+  bool saveAudioMsg(int msgId, string name, int size, int length, string url);
+  bool savePlainMsg(int msgId, string content);
+  bool saveImageMsg(int msgId, string id, string url);
   bool updateGroupConfig(int64_t groupId, int64_t config);
   int64_t getGroupConfig(int64_t groupId);
   vector<string> getGroupMsg(int64_t groupId, int64_t senderId, int count);
