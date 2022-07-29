@@ -3,6 +3,7 @@
 
 #include "module.h"
 #include "sql.h"
+#include "utils.h"
 
 class Record: public Module {
 public:
