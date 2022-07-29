@@ -10,30 +10,33 @@ string timeToString(time_t time, string format) {
 }
 
 ParsedMessage::ParsedMessage(GroupMessageEvent &e)
-  : sender(e.sender), group(e.group),
+  : senderId(e.sender.id()),
+    groupId(e.group.id()),
+    source(e.message.source.value().source),
     audioMsg(e.message.first<OnlineAudio>()),
     fileMsg(e.message.first<RemoteFile>()),
-    forwardMsg(e.message.first<OnlineForwardedMessage>()),
-    timestamp(time(0)) {
-  if (audioMsg != nullopt) {
-    miraiCode = "[语音消息]";
-    return;
-  }
-  if (fileMsg != nullopt) {
-    miraiCode = "[文件消息]";
-    return;
-  }
-  if (forwardMsg != nullopt) {
-    miraiCode = "[转发消息]";
-    return;
-  }
-  miraiCode = e.message.toMiraiCode();
+    forwardedMsg(e.message.first<OnlineForwardedMessage>()),
+    imageMsg(e.message.filter<Image>()),
+    flashImageMsg(e.message.first<FlashImage>()),
+    timestamp(time(0)),
+    type(0) {
+  if (audioMsg != nullopt)
+    type |= AUDIO_MSG;
+  else if (fileMsg != nullopt)
+    type |= FILE_MSG;
+  else if (forwardedMsg != nullopt)
+    type |= FORWARDED_MSG;
+  else if (flashImageMsg != nullopt)
+    type |= FLASHIMAGE_MSG;
+  else
+    type |= NORMAL_MSG;
   for (auto at: e.message.filter<At>())
-    mentionedMembers.push_back(e.group.getMember(at.target));
+   atTargets.push_back(at.target);
   atAll = e.message.first<AtAll>() != nullopt;
-  images = e.message.filter<Image>();
-  for (auto text: e.message.filter<PlainText>()) {
-    string s = text.content;
+  auto v = e.message.filter<PlainText>();
+  for (int i = 0; i < v.size(); ++i) {
+    string s = v[i].content;
+    text += s+(i == v.size() - 1 ? "" : "\n");
     int pos = 0;
     bool word = false;
     for (int i = 0; i < s.length(); ++i) {
