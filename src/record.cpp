@@ -22,15 +22,15 @@ bool Record::processGroupMessage(ParsedMessage& pm) {
       pm.flashImageMsg->refreshInfo();
     Sql::instance().saveImageMsg(msgId, pm.flashImageMsg->id, pm.flashImageMsg->url.value_or(""));
   }
-  if (pm.type & NORMAL_MSG) {
-    if (!pm.text.empty())
-      Sql::instance().savePlainMsg(msgId, pm.text);
+  if (pm.type & PLAIN_MSG)
+    for (auto plain: pm.plainMsg)
+      Sql::instance().savePlainMsg(msgId, plain.content);
+  if (pm.type & IMAGE_MSG)
     for (auto image: pm.imageMsg) {
       if (!image.url.has_value())
         image.refreshInfo();
       Sql::instance().saveImageMsg(msgId, image.id, image.url.value_or(""));
     }
-  }
 
   return true;
 }

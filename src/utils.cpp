@@ -18,25 +18,33 @@ ParsedMessage::ParsedMessage(GroupMessageEvent &e)
     forwardedMsg(e.message.first<OnlineForwardedMessage>()),
     imageMsg(e.message.filter<Image>()),
     flashImageMsg(e.message.first<FlashImage>()),
+    marketfaceMsg(e.message.first<MarketFace>()),
+    faceMsg(e.message.filter<Face>()),
+    plainMsg(e.message.filter<PlainText>()),
+    atMsg(e.message.filter<At>()),
     timestamp(time(0)),
     type(0) {
   if (audioMsg != nullopt)
     type |= AUDIO_MSG;
-  else if (fileMsg != nullopt)
+  if (fileMsg != nullopt)
     type |= FILE_MSG;
-  else if (forwardedMsg != nullopt)
+  if (forwardedMsg != nullopt)
     type |= FORWARDED_MSG;
-  else if (flashImageMsg != nullopt)
+  if (flashImageMsg != nullopt)
     type |= FLASHIMAGE_MSG;
-  else
-    type |= NORMAL_MSG;
-  for (auto at: e.message.filter<At>())
-   atTargets.push_back(at.target);
+  if (marketfaceMsg != nullopt)
+    type |= MARKETFACE_MSG;
+  if (!atMsg.empty())
+    type |= AT_MSG;
+  if (!faceMsg.empty())
+    type |= FACE_MSG;
+  if (!plainMsg.empty())
+    type |= PLAIN_MSG;
+  if (!imageMsg.empty())
+    type |= IMAGE_MSG;
   atAll = e.message.first<AtAll>() != nullopt;
-  auto v = e.message.filter<PlainText>();
-  for (int i = 0; i < v.size(); ++i) {
-    string s = v[i].content;
-    text += s+(i == v.size() - 1 ? "" : "\n");
+  for (int i = 0; i < plainMsg.size(); ++i) {
+    string s = plainMsg[i].content;
     int pos = 0;
     bool word = false;
     for (int i = 0; i < s.length(); ++i) {
