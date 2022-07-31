@@ -21,8 +21,9 @@ using namespace MiraiCP;
 struct ParsedMessage {
   ParsedMessage(GroupMessageEvent &e);
   string source;
-  QQID senderId;
-  QQID groupId;
+  Member& sender;
+  Group&  group;
+  QQID botId;
   bool atAll;
   optional<OnlineAudio>     audioMsg;
   optional<RemoteFile>      fileMsg;

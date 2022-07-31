@@ -10,8 +10,9 @@ string timeToString(time_t time, string format) {
 }
 
 ParsedMessage::ParsedMessage(GroupMessageEvent &e)
-  : senderId(e.sender.id()),
-    groupId(e.group.id()),
+  : sender(e.sender),
+    group(e.group),
+    botId(e.bot.id),
     source(e.message.source.value().source),
     audioMsg(e.message.first<OnlineAudio>()),
     fileMsg(e.message.first<RemoteFile>()),
