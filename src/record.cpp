@@ -10,7 +10,7 @@ Record::Record(): Module(
 }
 
 bool Record::processGroupMessage(ParsedMessage& pm) {
-  int msgId = Sql::instance().saveGroupMsg(pm.groupId, pm.senderId, pm.source, pm.timestamp, pm.type);
+  int msgId = Sql::instance().saveGroupMsg(pm.group.id(), pm.sender.id(), pm.source, pm.timestamp, pm.type);
   if (pm.type & FILE_MSG)
     Sql::instance().saveFileMsg(msgId, pm.fileMsg->name, pm.fileMsg->size, pm.fileMsg->dinfo->url);
   if (pm.type & AUDIO_MSG)
